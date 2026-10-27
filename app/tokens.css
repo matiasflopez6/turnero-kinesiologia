@@ -1,0 +1,67 @@
+/* Tokens de la marca MFL Systems (docs/marca/tokens.json). Día es el tema por defecto del turnero. */
+:root {
+  --night: #000000;
+  --logo-white: #ffffff;
+  --logo-blue: #1a8cff;
+
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-raised: #eef1f5;
+  --line: #d5dbe3;
+  --line-strong: #7d8796;
+  --ink: #0a0b0d;
+  --ink-muted: #4b5563;
+  --pulse: #0066d6;
+  --pulse-hover: #0058b8;
+  --on-pulse: #ffffff;
+  --pulse-ink: #0058b8;
+  --pulse-soft: #e3f0ff;
+  --gain: #0b7a55;
+  --gain-soft: #e2f5ee;
+  --alert: #b35900;
+  --alert-soft: #fdf0dd;
+  --error: #c42b2b;
+  --error-soft: #fbe4e4;
+  --focus: #0058b8;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-24: 96px;
+
+  --radius-0: 0;
+  --radius-s: 2px;
+  --radius-m: 4px;
+  --cut: 12px;
+  --cut-s: 8px;
+
+  color-scheme: light;
+}
+
+:root[data-theme='noche'] {
+  --bg: var(--night);
+  --surface: #101216;
+  --surface-raised: #1a1d23;
+  --line: #2a2f38;
+  --line-strong: #5a6372;
+  --ink: #f4f6f8;
+  --ink-muted: #9aa3af;
+  --pulse: #1a8cff;
+  --pulse-hover: #4da8ff;
+  --on-pulse: #04070c;
+  --pulse-ink: #4da8ff;
+  --pulse-soft: #0e2a4a;
+  --gain: #2bd9a0;
+  --gain-soft: #0c3328;
+  --alert: #ff9f1c;
+  --alert-soft: #3a2608;
+  --error: #ff5c5c;
+  --error-soft: #3a1214;
+  --focus: #4da8ff;
+
+  color-scheme: dark;
+}

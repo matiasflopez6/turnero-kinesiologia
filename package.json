@@ -1,0 +1,24 @@
+{
+  "name": "turnero-kinesiologia",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gestión de consultorios de kinesiología: agenda, pacientes, evolución y cobros",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "migrate": "node scripts/migrate.mjs",
+    "start": "node scripts/migrate.mjs && next start -p ${PORT:-3000}"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "lucide-react": "^1.61.0",
+    "next": "^16.4.3",
+    "pg": "^8.23.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1"
+  }
+}
