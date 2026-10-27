@@ -2,13 +2,17 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { query } from '@/lib/db';
 import { activeProfessionals, appointmentsForPatient } from '@/lib/queries';
-import { formatDay, todayLocal } from '@/lib/agenda';
+import { formatDay, localDate, todayLocal } from '@/lib/agenda';
+import { listPayments, listQuotes, patientBalance } from '@/lib/billing';
+import { METHODS, money } from '@/lib/money';
+import QuoteBadge from '@/components/QuoteBadge';
 import { FINDINGS, ZONES } from '@/lib/body';
 import BodyMap from '@/components/BodyMap';
 import NoteForm from '@/components/NoteForm';
 import ReminderButton from '@/components/ReminderButton';
 import StatusBadge from '@/components/StatusBadge';
 import { removeFinding, removeNote, resetMap } from '../clinical-actions';
+import { deletePayment } from '../../cobros/actions';
 
 export const metadata = { title: 'Paciente' };
 
@@ -16,6 +20,7 @@ const TABS = [
   ['resumen', 'Resumen'],
   ['mapa', 'Mapa corporal'],
   ['evolucion', 'Evolución'],
+  ['cuenta', 'Cuenta'],
 ];
 
 function age(birth) {
@@ -190,6 +195,80 @@ function Evolucion({ p, notes, professionals }) {
   );
 }
 
+const shortDate = (d) => `${d.slice(8, 10)}/${d.slice(5, 7)}/${d.slice(0, 4)}`;
+
+function Cuenta({ p, balance, quotes, payments }) {
+  return (
+    <>
+      <div className="metrics metrics--wide">
+        <div className="mfl-metric">
+          <span className="mfl-metric__value mfl-metric__value--money">{money(Math.max(balance.due, 0))}</span>
+          <span className="mfl-metric__label">{balance.due < 0 ? 'saldo a favor del paciente' : 'saldo pendiente'}</span>
+          <span className="mfl-metric__compare mfl-num">
+            Presupuestado y aceptado: {money(balance.charged)}. Cobrado: {money(balance.paid)}.
+            {balance.due < 0 && ` A favor: ${money(-balance.due)}.`}
+          </span>
+        </div>
+      </div>
+      <div className="actions">
+        <Link href={`/cobros/nuevo?paciente=${p.id}`} className="mfl-btn mfl-btn--primary">Registrar cobro</Link>
+        <Link href={`/presupuestos/nuevo?paciente=${p.id}`} className="mfl-btn mfl-btn--secondary">Nuevo presupuesto</Link>
+      </div>
+
+      <section className="stack">
+        <h2 className="title">Presupuestos</h2>
+        {quotes.length === 0 ? (
+          <p className="muted">Todavía no tiene presupuestos.</p>
+        ) : (
+          <ul className="appt-list">
+            {quotes.map((q) => (
+              <li key={q.id}>
+                <Link href={`/presupuestos/${q.id}`} className="mfl-num">N.º {q.id}</Link>
+                <span className="muted mfl-num">{shortDate(localDate(q.created_at))}</span>
+                <QuoteBadge status={q.status} />
+                <span className="mfl-num push-right">{money(q.total)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="stack">
+        <h2 className="title">Cobros</h2>
+        {payments.length === 0 ? (
+          <p className="muted">Todavía no hay cobros registrados.</p>
+        ) : (
+          <div className="table-wrap">
+            <table className="table">
+              <thead><tr><th>Fecha</th><th>Medio</th><th>Nota</th><th className="num">Monto</th><th aria-label="Acciones" /></tr></thead>
+              <tbody>
+                {payments.map((pay) => (
+                  <tr key={pay.id}>
+                    <td className="mfl-num">{shortDate(pay.paid_on)}</td>
+                    <td>{METHODS[pay.method]}</td>
+                    <td className="muted">{pay.notes}</td>
+                    <td className="num mfl-num">{money(pay.amount)}</td>
+                    <td className="cell-action">
+                      <details className="danger danger--inline">
+                        <summary>Borrar</summary>
+                        <form action={deletePayment}>
+                          <input type="hidden" name="id" value={pay.id} />
+                          <input type="hidden" name="patient_id" value={p.id} />
+                          <button type="submit" className="mfl-btn mfl-btn--ghost mfl-btn--sm">Sí, borrar</button>
+                        </form>
+                      </details>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </>
+  );
+}
+
 export default async function PacientePage({ params, searchParams }) {
   const { id } = await params;
   const { tab: rawTab } = await searchParams;
@@ -216,6 +295,13 @@ export default async function PacientePage({ params, searchParams }) {
       activeProfessionals(),
     ]);
     content = <Evolucion p={p} notes={notes} professionals={professionals} />;
+  } else if (tab === 'cuenta') {
+    const [balance, quotes, payments] = await Promise.all([
+      patientBalance(p.id),
+      listQuotes({ patientId: p.id }),
+      listPayments({ patientId: p.id }),
+    ]);
+    content = <Cuenta p={p} balance={balance} quotes={quotes} payments={payments} />;
   } else {
     content = <Resumen p={p} appointments={await appointmentsForPatient(p.id)} />;
   }

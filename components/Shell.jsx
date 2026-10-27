@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { CalendarDays, House, LogOut, Menu, Stethoscope, Users, Wallet, X } from 'lucide-react';
+import { CalendarDays, ClipboardList, FileText, House, LogOut, Menu, Stethoscope, Users, Wallet, X } from 'lucide-react';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
 
@@ -11,8 +11,10 @@ const NAV = [
   { href: '/', label: 'Inicio', icon: House },
   { href: '/agenda', label: 'Agenda', icon: CalendarDays },
   { href: '/pacientes', label: 'Pacientes', icon: Users },
+  { href: '/presupuestos', label: 'Presupuestos', icon: FileText },
   { href: '/cobros', label: 'Cobros', icon: Wallet },
   { href: '/kinesiologos', label: 'Kinesiólogos', icon: Stethoscope },
+  { href: '/prestaciones', label: 'Prestaciones', icon: ClipboardList },
 ];
 
 export default function Shell({ user, clinicName, logoutAction, children }) {

@@ -220,3 +220,42 @@ textarea.mfl-input { resize: vertical; }
   .body-map { grid-template-columns: 1fr; }
   .body-panel { position: static; }
 }
+
+/* Paso 4: presupuestos y cobros */
+.push-right { margin-left: auto; }
+.metrics--wide { max-width: 760px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.mfl-metric__value--money { font-size: 48px; line-height: 52px; }
+.form--wide { max-width: 1040px; }
+
+.quote-items { display: flex; flex-direction: column; gap: var(--space-3); align-items: flex-start; }
+.quote-item {
+  width: 100%; margin: 0; padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-s);
+  display: grid; grid-template-columns: minmax(200px, 2fr) minmax(140px, 1fr) 96px 128px 112px 40px; gap: var(--space-3); align-items: end;
+}
+.quote-item__service .mfl-input + .mfl-input { margin-top: var(--space-2); }
+.quote-item__total { text-align: right; padding-bottom: 12px; font-weight: 600; }
+
+.quote-sum { align-self: flex-end; width: min(360px, 100%); display: flex; flex-direction: column; gap: var(--space-2); margin-left: auto; }
+.quote-sum__row { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); }
+.quote-sum__row .mfl-input { width: 96px; text-align: right; padding: 6px var(--space-2); }
+.quote-sum__total { border-top: 1px solid var(--line); padding-top: var(--space-2); font: 600 18px/26px var(--font-sans); }
+
+.quote-doc { gap: var(--space-4); }
+.quote-doc__head { display: flex; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: var(--space-4); }
+.danger--inline summary { font-weight: 400; }
+
+@media (max-width: 900px) {
+  .quote-item { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .quote-item select.mfl-input, .quote-item input.mfl-input { width: 100%; min-width: 0; }
+  .quote-item__service { grid-column: 1 / -1; }
+  .quote-item__total { text-align: left; padding-bottom: 0; }
+}
+
+@media print {
+  .sidebar, .topbar, .no-print, .tabs { display: none !important; }
+  .shell { display: block; }
+  .content { padding: 0; }
+  body { background: #fff; }
+  .quote-doc { border: 0; padding: 0; }
+  .table-wrap { border: 0; overflow: visible; }
+}

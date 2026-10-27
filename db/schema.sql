@@ -104,3 +104,64 @@ CREATE TABLE IF NOT EXISTS clinical_notes (
 );
 
 CREATE INDEX IF NOT EXISTS clinical_notes_patient_idx ON clinical_notes (patient_id, note_date DESC);
+
+-- Paso 4: presupuestos y cobros
+
+CREATE TABLE IF NOT EXISTS services (
+  id         SERIAL PRIMARY KEY,
+  name       TEXT NOT NULL,
+  price      NUMERIC(12, 2) NOT NULL DEFAULT 0 CHECK (price >= 0),
+  active     BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS quotes (
+  id           SERIAL PRIMARY KEY,
+  patient_id   INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+  status       TEXT NOT NULL DEFAULT 'pendiente' CHECK (status IN ('pendiente', 'aceptado', 'rechazado')),
+  discount_pct NUMERIC(5, 2) NOT NULL DEFAULT 0 CHECK (discount_pct BETWEEN 0 AND 100),
+  valid_until  DATE,
+  notes        TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS quotes_patient_idx ON quotes (patient_id);
+
+CREATE TABLE IF NOT EXISTS quote_items (
+  id          SERIAL PRIMARY KEY,
+  quote_id    INTEGER NOT NULL REFERENCES quotes(id) ON DELETE CASCADE,
+  service_id  INTEGER REFERENCES services(id) ON DELETE SET NULL,
+  description TEXT NOT NULL,
+  zone        TEXT,
+  sessions    INTEGER NOT NULL DEFAULT 1 CHECK (sessions > 0),
+  unit_price  NUMERIC(12, 2) NOT NULL CHECK (unit_price >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+  id         SERIAL PRIMARY KEY,
+  patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+  paid_on    DATE NOT NULL,
+  amount     NUMERIC(12, 2) NOT NULL CHECK (amount > 0),
+  method     TEXT NOT NULL CHECK (method IN ('efectivo', 'transferencia', 'debito', 'credito', 'mercadopago', 'obra_social')),
+  notes      TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS payments_patient_idx ON payments (patient_id);
+CREATE INDEX IF NOT EXISTS payments_paid_on_idx ON payments (paid_on);
+
+-- Total de cada presupuesto con el descuento aplicado.
+CREATE OR REPLACE VIEW quote_totals AS
+SELECT q.id AS quote_id,
+       coalesce(sum(i.sessions * i.unit_price), 0) AS subtotal,
+       round(coalesce(sum(i.sessions * i.unit_price), 0) * (1 - q.discount_pct / 100), 2) AS total
+  FROM quotes q LEFT JOIN quote_items i ON i.quote_id = q.id
+ GROUP BY q.id;
+
+-- Saldo: lo presupuestado y aceptado menos lo cobrado.
+CREATE OR REPLACE VIEW patient_balances AS
+SELECT p.id AS patient_id,
+       coalesce((SELECT sum(t.total) FROM quotes q JOIN quote_totals t ON t.quote_id = q.id
+                  WHERE q.patient_id = p.id AND q.status = 'aceptado'), 0) AS charged,
+       coalesce((SELECT sum(amount) FROM payments WHERE patient_id = p.id), 0) AS paid
+  FROM patients p;
