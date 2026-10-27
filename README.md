@@ -8,7 +8,7 @@ Sistema de gestión para consultorios de kinesiología, con la marca de MFL Syst
 |------|-------------|--------|
 | 1. Base y marca | Next.js + PostgreSQL, ingreso con usuario, menú, tema Día y Noche | Listo |
 | 2. Pacientes y agenda | Kinesiólogos, ficha del paciente, agenda del día por kinesiólogo sin superposiciones, recordatorio por WhatsApp | Listo |
-| 3. Evaluación e historia clínica | Mapa corporal (EVA 0 a 10), alertas, evolución por sesión | Pendiente |
+| 3. Evaluación e historia clínica | Diagnóstico y alertas, mapa corporal con EVA 0 a 10, evolución por sesión con antes y después | Listo |
 | 4. Presupuestos y cobros | Prestaciones, obras sociales, presupuestos y saldos | Pendiente |
 
 ## Desarrollo local

@@ -70,3 +70,37 @@ BEGIN
       WHERE (status <> 'cancelado');
   END IF;
 END $$;
+
+-- Paso 3: evaluación e historia clínica
+
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS diagnosis TEXT;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS referred_by TEXT;
+ALTER TABLE patients ADD COLUMN IF NOT EXISTS alerts TEXT;
+
+-- Mapa corporal: estado actual de cada zona del paciente.
+CREATE TABLE IF NOT EXISTS body_findings (
+  id         SERIAL PRIMARY KEY,
+  patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+  zone       TEXT NOT NULL,
+  finding    TEXT NOT NULL CHECK (finding IN ('dolor', 'contractura', 'limitacion')),
+  eva        SMALLINT CHECK (eva BETWEEN 0 AND 10),
+  notes      TEXT,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (patient_id, zone, finding)
+);
+
+-- Evolución: una entrada por evaluación o sesión.
+CREATE TABLE IF NOT EXISTS clinical_notes (
+  id              SERIAL PRIMARY KEY,
+  patient_id      INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+  professional_id INTEGER REFERENCES professionals(id),
+  note_date       DATE NOT NULL,
+  kind            TEXT NOT NULL DEFAULT 'sesion' CHECK (kind IN ('evaluacion', 'sesion')),
+  zone            TEXT,
+  eva             SMALLINT CHECK (eva BETWEEN 0 AND 10),
+  body            TEXT NOT NULL,
+  created_by      INTEGER REFERENCES users(id),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS clinical_notes_patient_idx ON clinical_notes (patient_id, note_date DESC);

@@ -8,7 +8,7 @@ export const metadata = { title: 'Editar paciente' };
 export default async function EditarPacientePage({ params }) {
   const { id } = await params;
   const { rows } = await query(
-    `SELECT id, first_name, last_name, dni, phone, email, to_char(birth_date, 'YYYY-MM-DD') AS birth_date, health_plan, notes
+    `SELECT id, first_name, last_name, dni, phone, email, to_char(birth_date, 'YYYY-MM-DD') AS birth_date, health_plan, notes, diagnosis, referred_by, alerts
        FROM patients WHERE id = $1`,
     [Number(id) || 0]
   );

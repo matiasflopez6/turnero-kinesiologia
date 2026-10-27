@@ -38,6 +38,17 @@ export default function PatientForm({ patient }) {
         <label className="mfl-field__label" htmlFor="notes">Notas</label>
         <textarea className="mfl-input" id="notes" name="notes" rows={3} defaultValue={v.notes ?? ''} />
       </div>
+      <h3 className="title form-section">Clínica</h3>
+      <div className="mfl-field">
+        <label className="mfl-field__label" htmlFor="diagnosis">Diagnóstico</label>
+        <input className="mfl-input" id="diagnosis" name="diagnosis" defaultValue={v.diagnosis ?? ''} placeholder="Por ejemplo: lumbalgia mecánica" />
+      </div>
+      <Field name="referred_by" label="Derivado por" values={v} help="Médico o institución que lo derivó." />
+      <div className="mfl-field">
+        <label className="mfl-field__label" htmlFor="alerts">Alertas y contraindicaciones</label>
+        <textarea className="mfl-input" id="alerts" name="alerts" rows={2} defaultValue={v.alerts ?? ''} placeholder="Por ejemplo: marcapasos, no aplicar electroterapia" />
+        <span className="mfl-field__help">Se muestran destacadas arriba de la ficha.</span>
+      </div>
       <div className="form-actions">
         <button type="submit" className="mfl-btn mfl-btn--primary" disabled={pending}>
           {patient ? 'Guardar cambios' : 'Guardar paciente'}

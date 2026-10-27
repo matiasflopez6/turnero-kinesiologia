@@ -5,7 +5,7 @@ import { requireUser } from '@/lib/auth';
 import { query } from '@/lib/db';
 import { isValidDate, whatsappNumber } from '@/lib/agenda';
 
-const FIELDS = ['first_name', 'last_name', 'dni', 'phone', 'email', 'birth_date', 'health_plan', 'notes'];
+const FIELDS = ['first_name', 'last_name', 'dni', 'phone', 'email', 'birth_date', 'health_plan', 'notes', 'diagnosis', 'referred_by', 'alerts'];
 
 export async function savePatient(_prev, formData) {
   await requireUser();
@@ -23,12 +23,13 @@ export async function savePatient(_prev, formData) {
   if (id) {
     await query(
       `UPDATE patients SET first_name = $1, last_name = $2, dni = $3, phone = $4, email = $5,
-              birth_date = $6, health_plan = $7, notes = $8 WHERE id = $9`,
+              birth_date = $6, health_plan = $7, notes = $8, diagnosis = $9, referred_by = $10, alerts = $11
+        WHERE id = $12`,
       [...params, id]
     );
   } else {
     const { rows } = await query(
-      `INSERT INTO patients (${FIELDS.join(', ')}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+      `INSERT INTO patients (${FIELDS.join(', ')}) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id`,
       params
     );
     patientId = rows[0].id;
